@@ -26,19 +26,10 @@
     function capturePhoto(stream) {
         // Create a canvas element to capture the photo
         var canvas = document.createElement('canvas');
-        var video = document.createElement('video');
-        video.srcObject = stream;
-        video.play();
-
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        canvas.width = 640; // Adjust width as needed
+        canvas.height = 480; // Adjust height as needed
         var ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        // Stop the camera stream
-        stream.getTracks().forEach(function (track) {
-            track.stop();
-        });
+        ctx.drawImage(stream.getVideoTracks()[0], 0, 0, canvas.width, canvas.height);
 
         // Convert the canvas content to a Blob (image file)
         canvas.toBlob(function (blob) {
